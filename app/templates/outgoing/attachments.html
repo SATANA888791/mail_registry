@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Вложения письма {{ letter.number }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <h3 class="text-center mb-4">📤 Исходящее письмо зарегистрировано</h3>
+
+        <p class="text-center mb-3">
+          <strong>Номер:</strong>
+          <span class="text-monospace">{{ letter.number }}</span>
+          <button class="btn btn-sm btn-outline-secondary ms-2" id="copyNumber" data-number="{{ letter.number }}">
+            📋 Копировать
+          </button>
+
+        </p>
+
+        <hr>
+        <p><strong>Тема:</strong> {{ letter.subject }}</p>
+        <p><strong>Кому:</strong> {{ letter.recipient }}</p>
+
+        <hr>
+        <h5 class="mt-4">📎 Вложения</h5>
+
+        {% include 'outgoing/_attachments.html' %}
+
+        {% if pending_upload %}
+        <!-- 🔁 Форма повторной загрузки (дубликат) -->
+        <form method="POST" enctype="multipart/form-data" class="mt-3">
+          <input type="hidden" name="force" value="1">
+          <input type="file" name="file" class="form-control my-2" required>
+          <button type="submit" class="btn btn-warning w-100">⚠️ Загрузить всё равно</button>
+        </form>
+        {% endif %}
+
+        <form action="{{ url_for('outgoing.list_outgoing') }}" method="GET" class="mt-4 text-center">
+          <button type="submit" class="btn btn-success w-100">💾 Сохранить и вернуться к исходящим</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

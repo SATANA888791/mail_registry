@@ -1,0 +1,258 @@
+{% extends 'base.html' %}
+
+{% block title %}Админ-панель{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">👑 Админ-панель</h2>
+
+<div class="row mb-4">
+  <!-- Блок управления нумерацией -->
+  <div class="col-md-6 mb-4">
+    <div class="card">
+      <div class="card-header bg-primary text-white">
+        <i class="bi bi-123"></i> Управление нумерацией писем
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <!-- Исходящие -->
+          <div class="col-md-6 border-end">
+            <h5 class="text-center">
+              <i class="bi bi-send"></i> Исходящие
+            </h5>
+            <div class="text-center my-3">
+              <span class="fs-4 fw-bold">{{ next_outgoing }}</span>
+              <div class="text-muted small">Следующий номер</div>
+            </div>
+            
+            <div class="d-flex flex-column gap-2">
+              <form action="{{ url_for('admin.reset_outgoing') }}" method="post" 
+                    class="confirm-form" data-message="Вы уверены, что хотите сбросить нумерацию исходящих писем?">
+                <button type="submit" class="btn btn-warning btn-sm w-100">
+                  <i class="bi bi-arrow-counterclockwise"></i> Сбросить нумерацию
+                </button>
+              </form>
+              
+              <form action="{{ url_for('admin.release_outgoing') }}" method="post"
+                    class="confirm-form" data-message="Освободить последний номер исходящих писем?">
+                <button type="submit" class="btn btn-outline-danger btn-sm w-100">
+                  <i class="bi bi-arrow-left"></i> Освободить номер
+                </button>
+              </form>
+            </div>
+          </div>
+          
+          <!-- Входящие -->
+          <div class="col-md-6">
+            <h5 class="text-center">
+              <i class="bi bi-envelope"></i> Входящие
+            </h5>
+            <div class="text-center my-3">
+              <span class="fs-4 fw-bold">{{ next_incoming }}</span>
+              <div class="text-muted small">Следующий номер</div>
+            </div>
+            
+            <div class="d-flex flex-column gap-2">
+              <form action="{{ url_for('admin.reset_incoming') }}" method="post"
+                    class="confirm-form" data-message="Вы уверены, что хотите сбросить нумерацию входящих писем?">
+                <button type="submit" class="btn btn-warning btn-sm w-100">
+                  <i class="bi bi-arrow-counterclockwise"></i> Сбросить нумерацию
+                </button>
+              </form>
+              
+              <form action="{{ url_for('admin.release_incoming') }}" method="post"
+                    class="confirm-form" data-message="Освободить последний номер входящих писем?">
+                <button type="submit" class="btn btn-outline-danger btn-sm w-100">
+                  <i class="bi bi-arrow-left"></i> Освободить номер
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Статистика -->
+  <div class="col-md-6">
+    <div class="row">
+      <!-- Пользователи -->
+      <div class="col-md-6 mb-3">
+        <div class="card h-100">
+          <div class="card-body text-center">
+            <h5 class="card-title"><i class="bi bi-people"></i> Пользователи</h5>
+            <p class="card-text fs-4">{{ total_users }}</p>
+            <a href="{{ url_for('admin.user_list') }}" class="btn btn-sm btn-outline-primary">
+              Управление
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Письма -->
+      <div class="col-md-6 mb-3">
+        <div class="card h-100">
+          <div class="card-body text-center">
+            <h5 class="card-title"><i class="bi bi-mailbox2"></i> Всего писем</h5>
+            <p class="card-text fs-4">{{ total_mails }}</p>
+            <div>
+              <a href="{{ url_for('admin.all_outgoing') }}" class="btn btn-sm btn-outline-primary me-1">
+                Исходящие
+              </a>
+              <a href="#" class="btn btn-sm btn-outline-secondary">
+                Входящие
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Заблокированные -->
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-body text-center">
+            <h5 class="card-title"><i class="bi bi-slash-circle"></i> Заблокировано</h5>
+            <p class="card-text fs-4">{{ blocked_users }}</p>
+            <a href="{{ url_for('admin.user_list') }}?only=blocked" class="btn btn-sm btn-outline-danger">
+              Список
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Онлайн -->
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-body text-center">
+            <h5 class="card-title"><i class="bi bi-lightning-charge"></i> Онлайн</h5>
+            <p class="card-text fs-4">{{ online_users }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Быстрые действия -->
+<div class="mb-4">
+  <a href="{{ url_for('admin.user_create') }}" class="btn btn-success me-2">
+    <i class="bi bi-person-plus"></i> Новый пользователь
+  </a>
+</div>
+
+<!-- Активность -->
+<div class="card">
+  <div class="card-header">
+    <i class="bi bi-clock-history"></i> Последние действия
+  </div>
+  <div class="card-body p-0">
+    {% if recent_activity %}
+    <div class="list-group list-group-flush">
+      {% for log in recent_activity %}
+      <div class="list-group-item">
+        <div class="d-flex justify-content-between">
+          <span class="text-muted small">{{ log.timestamp.strftime('%H:%M %d.%m.%Y') }}</span>
+          <span class="badge bg-secondary">{{ log.admin.username if log.admin else 'Система' }}</span>
+        </div>
+        <div class="mt-1">
+          {% if log.action == 'unblock' %}
+            <i class="bi bi-unlock text-success"></i> Разблокирован {{ log.user.username }}
+          {% else %}
+            <i class="bi bi-lock text-danger"></i> Заблокирован {{ log.user.username }} 
+            {% if log.is_permanent %}
+              (навсегда)
+            {% else %}
+              (до {{ log.blocked_until.strftime('%d.%m.%Y %H:%M') }})
+            {% endif %}
+          {% endif %}
+          {% if log.reason %}
+            <div class="text-muted small mt-1">Причина: {{ log.reason }}</div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center p-4 text-muted">
+      Нет недавней активности
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Модальное окно подтверждения -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Подтверждение</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="confirmMessage">
+        Вы уверены?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+        <button type="button" class="btn btn-danger" id="confirmButton">Подтвердить</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Подтверждение действий
+  const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+  const confirmMessage = document.getElementById('confirmMessage');
+  const confirmButton = document.getElementById('confirmButton');
+  
+  document.querySelectorAll('.confirm-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      confirmMessage.textContent = this.dataset.message;
+      confirmButton.onclick = () => form.submit();
+      confirmModal.show();
+    });
+  });
+  
+  // Обновление статистики каждые 60 секунд
+  setInterval(() => {
+    fetch(window.location.href)
+      .then(response => response.text())
+      .then(html => {
+        const parser = new DOMParser();
+        const newDoc = parser.parseFromString(html, 'text/html');
+        
+        // Обновляем только блоки с цифрами
+        document.querySelectorAll('.card-text.fs-4').forEach((el, index) => {
+          const newEl = newDoc.querySelectorAll('.card-text.fs-4')[index];
+          if (newEl && el.textContent !== newEl.textContent) {
+            el.textContent = newEl.textContent;
+          }
+        });
+        
+        // Обновляем номера писем
+        const newOutgoing = newDoc.querySelector('.col-md-6.border-end .fs-4');
+        const newIncoming = newDoc.querySelector('.col-md-6:not(.border-end) .fs-4');
+        
+        if (newOutgoing) {
+          const current = document.querySelector('.col-md-6.border-end .fs-4');
+          if (current.textContent !== newOutgoing.textContent) {
+            current.textContent = newOutgoing.textContent;
+          }
+        }
+        
+        if (newIncoming) {
+          const current = document.querySelector('.col-md-6:not(.border-end) .fs-4');
+          if (current.textContent !== newIncoming.textContent) {
+            current.textContent = newIncoming.textContent;
+          }
+        }
+      });
+  }, 60000);
+});
+</script>
+{% endblock %}

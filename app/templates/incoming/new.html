@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Новое входящее письмо{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h3 class="mb-4 text-center">📥 Добавить входящее письмо</h3>
+        <form method="POST">
+          {{ form.hidden_tag() }}
+          <div class="mb-3">
+            {{ form.organization.label(class="form-label") }}
+            {{ form.organization(class="form-control") }}
+          </div>
+          <div class="mb-3">
+            {{ form.subject.label(class="form-label") }}
+            {{ form.subject(class="form-control") }}
+          </div>
+          <div class="mb-3">
+            {{ form.forwarded_to.label(class="form-label") }}
+            {{ form.forwarded_to(class="form-control") }}
+          </div>
+          <div class="mb-3">
+            {{ form.date.label(class="form-label") }}
+            {{ form.date(class="form-control") }}
+          </div>
+          <button type="submit" class="btn btn-success w-100">💾 Сохранить</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

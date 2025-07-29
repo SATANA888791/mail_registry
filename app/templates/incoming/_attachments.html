@@ -1,0 +1,50 @@
+{% if attachments %}
+<table class="table table-striped align-middle">
+  <thead>
+    <tr>
+      <th>📁 Имя файла</th>
+      <th class="text-end">Действия</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for att in attachments %}
+    <tr>
+      <td>{{ att.filename | file_icon }} {{ att.filename | e }}</td>
+      <td class="text-end">
+        <a href="{{ url_for('incoming.attachments', letter_id=letter.id, download=att.id) }}"
+          class="btn btn-sm btn-outline-primary me-2">
+          📥 Скачать
+        </a>
+        {% if current_user.role.name in ['Admin', 'Editor'] %}
+        <form method="POST"
+          action="{{ url_for('incoming.delete_attachment', letter_id=letter.id, attachment_id=att.id) }}"
+          style="display:inline;">
+          <button type="submit" class="btn btn-sm btn-outline-danger"
+            onclick="return confirm('Удалить файл {{ att.filename }}?')">
+            🗑️ Удалить
+          </button>
+        </form>
+{% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="alert alert-info text-center">
+  Пока нет прикреплённых файлов.
+</div>
+{% endif %}
+
+{% if current_user.role.name in ['Admin', 'Editor'] and not pending_upload %}
+<form method="POST" enctype="multipart/form-data" class="mt-3">
+  <div class="input-group">
+    <input type="file" name="file" class="form-control" required
+      accept=".pdf,.doc,.docx,.xls,.xlsx,.rar,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/x-rar-compressed">
+    <button type="submit" class="btn btn-outline-secondary">📤 Загрузить</button>
+  </div>
+  <small class="form-text text-muted">
+    Разрешенный форматы: pdf, doc, docx, xls, xlsx, rar. Максимальный размер: 50 МБ
+  </small>
+</form>
+{% endif %}

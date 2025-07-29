@@ -1,0 +1,67 @@
+/* 📦 Общие стили */
+body {
+  background-color: #f8f9fa;
+}
+
+h2, h3, h4 {
+  font-weight: 600;
+}
+
+.card {
+  border-radius: 8px;
+}
+
+/* 🧭 Навигация */
+.navbar-brand {
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+.navbar .nav-link {
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+}
+
+/* ✍️ Формы */
+.form-label {
+  font-weight: 500;
+}
+
+input.form-control,
+select.form-control {
+  border-radius: 6px;
+}
+
+/* 📎 Вложения */
+.list-group-item {
+  font-size: 0.95rem;
+  padding: 0.5rem 0.75rem;
+}
+
+/* 📱 Адаптация */
+@media (max-width: 768px) {
+  h2 {
+    font-size: 1.5rem;
+  }
+  .btn {
+    font-size: 0.9rem;
+  }
+  .table th, .table td {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .navbar-brand {
+    font-size: 1.1rem;
+  }
+  .table-responsive {
+    font-size: 0.8rem;
+  }
+}
+
+/* 💡 Flash-сообщения */
+.alert {
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}

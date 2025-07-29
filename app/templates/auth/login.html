@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Вход в систему{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-4">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h3 class="mb-4 text-center">🔐 Вход в систему</h3>
+        <form method="POST">
+          {{ form.hidden_tag() }}
+        
+          <div class="mb-3">
+            <label for="username" class="form-label">👤 Логин</label>
+            <div class="input-group">
+              <span class="input-group-text">👤</span>
+              {{ form.username(class="form-control", id="username") }}
+            </div>
+          </div>
+        
+          <div class="mb-3">
+            <label for="passwordField" class="form-label">🔒 Пароль</label>
+            <div class="input-group">
+              <span class="input-group-text">🔒</span>
+              {{ form.password(class="form-control", id="passwordField") }}
+              <button type="button" class="btn btn-outline-secondary" id="togglePassword">👁 Показать</button>
+            </div>
+          </div>
+        
+          <div class="form-check mb-3">
+            {{ form.remember(class="form-check-input", id="rememberMe") }}
+            <label class="form-check-label" for="rememberMe"> Запомнить меня</label>
+          </div>
+        
+          <button type="submit" class="btn btn-primary w-100">➡️ Войти</button>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

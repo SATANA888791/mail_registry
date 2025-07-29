@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% block title %}Исходящие письма{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="mb-0">📤 Исходящие письма</h2>
+  {% if current_user.role.name in ['Admin', 'Editor', 'Viewer'] %}
+  <a href="{{ url_for('outgoing.new_outgoing') }}" class="btn btn-success">➕ Новое письмо</a>
+  {% endif %}
+</div>
+
+<div class="d-flex justify-content-end mb-3">
+  <form method="GET" class="d-flex align-items-center gap-2">
+    <label for="per_page" class="form-label mb-0">Показать по:</label>
+    <select name="per_page" id="per_page" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
+      <option value="10" {% if per_page==10 %}selected{% endif %}>10</option>
+      <option value="25" {% if per_page==25 %}selected{% endif %}>25</option>
+      <option value="50" {% if per_page==50 %}selected{% endif %}>50</option>
+    </select>
+    <input type="hidden" name="page" value="{{ pagination.page }}">
+  </form>
+</div>
+
+<form method="GET" class="row g-2 mb-3">
+  <div class="col-md-3">
+    <input type="text" name="number" class="form-control" placeholder="Номер письма" value="{{ search_params.number }}">
+  </div>
+  <div class="col-md-3">
+    <input type="text" name="subject" class="form-control" placeholder="Тема" value="{{ search_params.subject }}">
+  </div>
+
+  <div class="col-md-3">
+    <input type="text" name="recipient" class="form-control" placeholder="Получатель"
+      value="{{ search_params.recipient }}">
+  </div>
+  <div class="col-md-3">
+    <input type="date" name="date_from" class="form-control" value="{{ search_params.date_from }}">
+  </div>
+  <div class="col-md-3">
+    <input type="date" name="date_to" class="form-control" value="{{ search_params.date_to }}">
+  </div>
+  <div class="col-md-3">
+    <button type="submit" class="btn btn-outline-primary w-100">🔍 Поиск</button>
+  </div>
+</form>
+
+
+<div class="table-responsive">
+  <table class="table table-striped table-hover align-middle">
+    <thead>
+      <tr>
+        <th>Автор</th>
+        <th>Номер</th>
+        <th>Тема</th>
+        <th>Кому</th>
+        <th>📅 Дата</th>
+        <th>Действия</th>
+        {% if current_user.role.name in ['Admin'] %}
+        <th>Действия</th>
+        {% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for letter in letters %}
+      <tr>
+        <td>{{ letter.user.display_name }}</td>
+        <td>{{ letter.number }}</td>
+        <td>{{ letter.subject }}</td>
+        <td>{{ letter.recipient }}</td>
+        <td>
+          {% if letter.date_created %}
+          {{ letter.date_created.strftime('%Y-%m-%d') }}
+          {% endif %}
+        </td>
+        <td>
+          {% set attachment_count = letter.attachments.count() %}
+          {% set can_view = not letter.is_protected or current_user.id == letter.user_id or current_user.role.name ==
+          'Admin' %}
+
+          {% if can_view and attachment_count > 0 %}
+          <a href="{{ url_for('outgoing.attachments', letter_id=letter.id) }}" class="btn btn-sm btn-outline-secondary"
+            title="Вложений: {{ attachment_count }}">
+            📎 {{ attachment_count }}
+          </a>
+          {% elif attachment_count > 0 %}
+          <span class="text-muted" title="Вложения защищены автором 🔒">🔒</span>
+          {% else %}
+          <span class="text-muted" title="Нет прикреплённых файлов">📁</span>
+          {% endif %}
+        </td>
+        {% if current_user.role.name in ['Admin'] %}
+        <td>
+          <form method="POST" action="{{ url_for('outgoing.delete_outgoing_letter', letter_id=letter.id) }}"
+            onsubmit="return confirm('Вы точно хотите удалить письмо {{ letter.number }}? Это действие необратимо.')">
+            <button type="submit" class="btn btn-danger btn-sm">🗑 Удалить</button>
+          </form>
+        </td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="mb-3 text-end">
+  <a class="btn btn-outline-success" href="{{ url_for('outgoing.export_outgoing', number=search_params.number,  subject=search_params.subject, recipient=search_params.recipient,
+                      date_from=search_params.date_from, date_to=search_params.date_to) }}">
+    📤 Экспорт в Excel
+  </a>
+</div>
+
+
+{% if pagination.has_prev or pagination.has_next %}
+<nav aria-label="Pagination" class="mt-4">
+  <ul class="pagination justify-content-center">
+    {% if pagination.has_prev %}
+    <li class="page-item">
+      <a class="page-link" href="{{ url_for('outgoing.list_outgoing', page=pagination.prev_num) }}">&laquo;</a>
+    </li>
+    {% endif %}
+    {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=1) %}
+    {% if p %}
+    <li class="page-item {% if pagination.page == p %}active{% endif %}">
+      <a class="page-link" href="{{ url_for('outgoing.list_outgoing', page=p, per_page=per_page) }}">{{ p }}</a>
+    </li>
+    {% else %}
+    <li class="page-item disabled"><span class="page-link">…</span></li>
+    {% endif %}
+    {% endfor %}
+    {% if pagination.has_next %}
+    <li class="page-item">
+      <a class="page-link" href="{{ url_for('outgoing.list_outgoing', page=pagination.next_num) }}">&raquo;</a>
+    </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

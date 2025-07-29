@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Мои письма{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">📤 Мои исходящие письма</h2>
+
+<form method="GET" class="row g-2 mb-3">
+  <div class="col-md-3">
+    <input type="text" name="number" class="form-control" placeholder="Номер"
+           value="{{ search_params.number }}">
+  </div>
+  <div class="col-md-3">
+    <input type="text" name="subject" class="form-control" placeholder="Тема"
+           value="{{ search_params.subject }}">
+  </div>
+  <div class="col-md-3">
+    <input type="text" name="recipient" class="form-control" placeholder="Получатель"
+           value="{{ search_params.recipient }}">
+  </div>
+  <div class="col-md-3">
+    <input type="date" name="date_from" class="form-control"
+           value="{{ search_params.date_from }}">
+  </div>
+  <div class="col-md-3">
+    <input type="date" name="date_to" class="form-control"
+           value="{{ search_params.date_to }}">
+  </div>
+  <div class="col-md-3">
+    <button type="submit" class="btn btn-outline-primary w-100">🔍 Поиск</button>
+  </div>
+</form>
+<div class="mb-3 text-end">
+  <a class="btn btn-outline-success"
+     href="{{ url_for('my_letters.export_my_letters',
+                      number=search_params.number,
+                      subject=search_params.subject,
+                      recipient=search_params.recipient,
+                      date_from=search_params.date_from,
+                      date_to=search_params.date_to) }}">
+    📤 Экспорт в Excel
+  </a>
+</div>
+
+
+{% include 'outgoing/_table.html' %}
+{% endblock %}

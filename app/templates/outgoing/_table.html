@@ -1,0 +1,32 @@
+<div class="table-responsive">
+  <table class="table table-striped table-hover align-middle">
+    <thead>
+      <tr>
+        <th>Номер</th>
+        <th>Тема</th>
+        <th>Получатель</th>
+        <th>Дата</th>
+        <th>Действия</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for letter in letters %}
+      <tr>
+        <td>{{ letter.number }}</td>
+        <td>{{ letter.subject }}</td>
+        <td>{{ letter.recipient }}</td>
+        <td>{{ letter.date_created.strftime('%Y-%m-%d') }}</td>
+        <td>
+          {% set attachment_count = letter.attachments.count() %}
+          <a href="{{ url_for('outgoing.edit_outgoing', letter_id=letter.id) }}" class="btn btn-sm btn-outline-primary">Ред.</a>
+          <a href="{{ url_for('outgoing.attachments', letter_id=letter.id) }}" class="btn btn-sm btn-outline-secondary"
+            title="Вложений: {{ attachment_count }}">
+            📎 {{ attachment_count }}
+          </a>
+        </td>
+
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

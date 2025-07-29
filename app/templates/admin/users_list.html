@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}Пользователи{% endblock %}
+
+{% block content %}
+
+{% if filter_type == 'blocked' %}
+<div class="alert alert-warning">🔒 Отображаются только заблокированные пользователи</div>
+{% endif %}
+
+<h1>Список пользователей</h1>
+<p>
+  <a href="{{ url_for('admin.user_create') }}" class="btn btn-success">
+    Новый пользователь
+  </a>
+</p>
+
+<table class="table table-bordered table-hover">
+  <thead>
+    <tr>
+      <th>Логин</th>
+      <th>Имя</th>
+      <th>E-mail</th>
+      <th>Роль</th>
+      <th>Онлайн</th>
+      <th>Последняя активность</th>
+      <th>Действия</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for u in users %}
+    <tr>
+      <td>{{ u.user.username }}</td>
+      <td>{{ u.user.display_name or u.user.username }}</td>
+      <td>{{ u.user.email }}</td>
+      <td>{{ u.user.role.name }}</td>
+      <td>
+        {% if u.online %}
+        🟢 Онлайн
+        {% else %}
+        ⚫ Оффлайн
+        {% endif %}
+      </td>
+      <td>{{ u.last_seen }}</td>
+      <td>
+        <a href="{{ url_for('admin.user_edit', user_id=u.user.id) }}" class="btn btn-sm btn-primary">Изменить</a>
+
+        <form method="post" action="{{ url_for('admin.user_delete', user_id=u.user.id) }}" style="display:inline"
+          onsubmit="return confirm('Удалить?')">
+          <button class="btn btn-sm btn-danger">Удалить</button>
+        </form>
+
+        {% if u.user.id != current_user.id and u.user.role.name != 'Admin' %}
+        {% if not u.user.is_blocked %}
+        <form method="post" action="{{ url_for('admin.block_user', user_id=u.user.id) }}" style="display:inline">
+          <input type="hidden" name="duration" value="permanent">
+          <input type="hidden" name="reason" value="Блокировка из панели">
+          <button class="btn btn-sm btn-warning"
+            onclick="return confirm('Заблокировать {{ u.user.username }} навсегда?')">
+            🔒 Заблокировать
+          </button>
+        </form>
+        {% else %}
+        <form method="post" action="{{ url_for('admin.unblock_user', user_id=u.user.id) }}" style="display:inline">
+          <button class="btn btn-sm btn-success" onclick="return confirm('Разблокировать {{ u.user.username }}?')">
+            🔓 Разблокировать
+          </button>
+        </form>
+        {% endif %}
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}
